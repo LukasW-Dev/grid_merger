@@ -2,13 +2,32 @@ grid_merger_node:
   ros__parameters:
     filters:
     
-      filter1:  # Reduce noise with a radial blurring filter.
-        name: mean_in_radius
-        type: gridMapFilters/MeanInRadiusFilter
+      filter1:
+          name: mean_in_radius2
+          type: gridMapFilters/MeanInRadiusFilter
+          params:
+            input_layer: elevation
+            output_layer: elevation_smooth
+            radius: 0.25
+    
+    # # Compute surface normals.
+      filter2:
+        name: surface_normals
+        type: gridMapFilters/NormalVectorsFilter
         params:
-          input_layer: elevation
-          output_layer: corrected
-          radius: 0.45
+          input_layer: elevation_smooth
+          output_layers_prefix: normal_vectors_
+          radius: 0.3
+          normal_vector_positive_axis: z
+
+    # # Compute slope from surface normal.
+      filter3:
+        name: slope
+        type: gridMapFilters/MathExpressionFilter
+        params:
+          output_layer: slope
+          expression: acos(normal_vectors_z)
+
 
     map_frame_id: "odom"
     robot_base_frame_id: "base_footprint"
