@@ -1,0 +1,16 @@
+grid_merger_node:
+  ros__parameters:
+    filters:
+    
+      filter1:  # Reduce noise with a radial blurring filter.
+        name: mean_in_radius
+        type: gridMapFilters/MeanInRadiusFilter
+        params:
+          input_layer: elevation
+          output_layer: corrected
+          radius: 0.45
+
+    map_frame_id: "odom"
+    robot_base_frame_id: "base_footprint"
+
+    
