@@ -143,6 +143,7 @@ class TimeSyncNode : public rclcpp::Node
     void SyncCallback(const GridMapMsg::ConstSharedPtr & semantic_map,
         const GridMapMsg::ConstSharedPtr & elevation_map)
     {
+      auto timestamp = std::chrono::steady_clock::now();
       // RCLCPP_INFO(this->get_logger(), "Sync callback with %u and %u as times", semantic_map->header.stamp.sec, elevation_map->header.stamp.sec);
       grid_map::GridMap semantic_grid_map;
       grid_map::GridMap elevation_grid_map;
@@ -208,6 +209,12 @@ class TimeSyncNode : public rclcpp::Node
       if(semantic_grid_map.exists("ground_class")) {
         elevation_grid_map.add("ground_class", semantic_grid_map.get("ground_class"));
       }
+      if(semantic_grid_map.exists("obstacle")) {
+        elevation_grid_map.add("obstacle", semantic_grid_map.get("obstacle"));
+      }
+      if(semantic_grid_map.exists("obstacle_class")) {
+        elevation_grid_map.add("obstacle_class", semantic_grid_map.get("obstacle_class"));
+      }
 
       // Apply filter chain.
       grid_map::GridMap min_height_filtered;
@@ -226,6 +233,9 @@ class TimeSyncNode : public rclcpp::Node
   
       // Publish the merged grid map
       grid_map_pub_->publish(merged_map_msg);
+
+      auto pc_cb_time = std::chrono::steady_clock::now();
+      RCLCPP_INFO(this->get_logger(), "Merging took %fms", std::chrono::duration<double, std::milli>(pc_cb_time - timestamp).count());
     }
 };
 
