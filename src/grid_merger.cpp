@@ -64,7 +64,7 @@ class TimeSyncNode : public rclcpp::Node
       message_filters::sync_policies::ApproximateTime<GridMapMsg,
       GridMapMsg>(queue_size), semantic_map_, elevation_map_);
 
-    sync->setAgePenalty(0.50);
+    sync->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.50));
     sync->registerCallback(std::bind(&TimeSyncNode::SyncCallback, this, _1, _2));
 
     class_names_ = {"bush",          "dirt",       "fence",    "grass",
@@ -149,6 +149,15 @@ class TimeSyncNode : public rclcpp::Node
       grid_map::GridMap elevation_grid_map;
       grid_map::GridMapRosConverter::fromMessage(*semantic_map, semantic_grid_map);
       grid_map::GridMapRosConverter::fromMessage(*elevation_map, elevation_grid_map);
+
+      // Check if maps have the same dimensions
+      if (semantic_grid_map.getResolution() != elevation_grid_map.getResolution())
+      {
+        RCLCPP_ERROR(this->get_logger(), "Semantic and elevation grid maps have mismatched geometry (length, resolution, or position). Shutting down.");
+        rclcpp::shutdown();
+        return;
+      }
+      
 
       // Initialize map pointer
       ground_class_ = &semantic_grid_map["ground_class"];
