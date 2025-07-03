@@ -241,7 +241,7 @@ class TimeSyncNode : public rclcpp::Node
       merged_map_msg.header.frame_id = semantic_map->header.frame_id;
   
       // Publish the merged grid map
-      grid_map_pub_->publish(merged_map_msg);
+      grid_map_pub_->publish(std::move(merged_map_msg));
 
       auto pc_cb_time = std::chrono::steady_clock::now();
       RCLCPP_INFO(this->get_logger(), "Merging took %fms", std::chrono::duration<double, std::milli>(pc_cb_time - timestamp).count());
