@@ -29,7 +29,7 @@ grid_merger_node:
           expression: acos(normal_vectors_z)
 
 
-    map_frame_id: "odom"
+    map_frame_id: "odom_flying_z"
     robot_base_frame_id: "base_footprint_link"
 
     
